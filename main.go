@@ -36,6 +36,11 @@ type Config struct {
 
 // Unmarshal the config.json.
 func (cf *Config) loadConfig() {
+	_, err := os.Stat("config.json")
+	if os.IsNotExist(err) {
+		fmt.Println("No config.json file found.")
+		createConfig()
+	}
 	jsonFile, err := ioutil.ReadFile("config.json")
 
 	if err != nil {
@@ -43,6 +48,18 @@ func (cf *Config) loadConfig() {
 	}
 
 	err = json.Unmarshal(jsonFile, &cf)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func createConfig() {
+	config := []byte(`{"keyDir": "keys", "templateDir": "templates", "outputDir": "out"}`)
+	c, err := os.Create("config.json")
+	if err != nil {
+		log.Println("Error writing file: ", err)
+	}
+	_, err = c.Write(config)
 	if err != nil {
 		log.Println(err)
 	}
