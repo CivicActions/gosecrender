@@ -4,14 +4,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
+	"text/template"
 )
 
 var wg sync.WaitGroup
@@ -106,9 +105,6 @@ func secrender() {
 			renderFile(cf.TemplateDir)
 		}
 	}
-
-	fmt.Println("CPUs\t\t", runtime.NumCPU())
-	fmt.Println("GoRoutines\t", runtime.NumGoroutine())
 }
 
 // Walk into the template directory looking for tpl files.
@@ -133,19 +129,19 @@ func crawlTemplates() {
 func renderFile(p string) {
 	r := strings.NewReplacer(cf.TemplateDir, cf.OutputDir, ".tpl", "")
 	opath := r.Replace(p)
-	fmt.Println("Creating file:", opath)
+	fmt.Println("Writing file:", opath)
 
 	createFilepath(filepath.Dir(opath))
 
 	tpl := template.Must(template.ParseFiles(p))
 	f, err := os.Create(opath)
 	if err != nil {
-		log.Println("Error creating file: ", err)
+		log.Println("Error writing file: ", err)
 	}
 
 	err = tpl.Execute(f, tv)
 	if err != nil {
-		log.Print("Error writing file: ", err)
+		log.Println("Error writing file: ", err)
 	}
 	f.Close()
 	wg.Done()
@@ -155,7 +151,7 @@ func renderFile(p string) {
 func createFilepath(o string) {
 	_, err := os.Stat(o)
 	if os.IsNotExist(err) {
-		fmt.Println("creating...", o)
+		fmt.Println("Creating directory...", o)
 		os.MkdirAll(o, 0777)
 	}
 }
