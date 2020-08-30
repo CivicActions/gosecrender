@@ -24,7 +24,7 @@ Example:
 
 #### Keys
 
-`secrender` requires at least on JSON file in the keyDir directory defined
+`Secrender` requires at least on JSON file in the keyDir directory defined
 in the `config.json` file. The keys file contains the keys and values to be
 used with the templates. For example:
 
@@ -52,7 +52,7 @@ Templates use the [Golang text/template](https://golang.org/pkg/text/template/) 
 {{.Keys.project.name_short}} is a project that does {{.Keys.project.description}}
 ```
 
-The variables surrounded will be replaced with values from the keys JSON files.
+The variables will be replaced with values from the keys JSON files.
 
 #### Output
 
