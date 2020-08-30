@@ -8,7 +8,21 @@ a Golang template to produce the markdown for SSP front matter.
 
 ## Usage
 
-### Keys
+### Configuration
+
+Configuration is stored in a file name `config.json` and should be kept in your project root. If the file doesn't exist _Secrender_ will create one with default values for the _keys_, _templates_ and _output_ directory.
+
+Example:
+
+```json
+{
+  "keyDir": "keys",
+  "templateDir": "templates",
+  "outputDir": "out"
+}
+```
+
+#### Keys
 
 `secrender` requires at least on JSON file in the keyDir directory defined
 in the `config.json` file. The keys file contains the keys and values to be
@@ -28,15 +42,21 @@ The file should have a unique top-level name, `project` in the example above. Th
 
 You can have as many JSON key files as you like in the directory.
 
-### Templates
+#### Templates
 
-Templates must have a `.tpl` extension and live in the `templateDir` defined in the `config.json` file. Rendered template files will be output to the `outputDir` defined in the `config.json` file without the `.tpl` extension, but will retain their directory structure. In other words a file that lives in `templates/somedir/anotherdir/myTemplate.md.tpl` will be written to `outputDir/somedir/anotherdir/myTemplate.md`
+Templates use the [Golang text/template](https://golang.org/pkg/text/template/) package. The files must have a `.tpl` extension and live in the `templateDir` defined in the `config.json` file. The templates variables use the "dot" notation and are surrounded by `{{ }}`.
 
 ```markdown
 # Project {{.Keys.project.name}}
 
-The values in surrounded by {{}} will be replaced with values from the keys JSON files.
+{{.Keys.project.name_short}} is a project that does {{.Keys.project.description}}
 ```
+
+The variables surrounded will be replaced with values from the keys JSON files.
+
+#### Output
+
+Rendered template files will be output to the `outputDir` defined in the `config.json` file without the `.tpl` extension, but will retain their directory structure. In other words a file that lives in `templates/somedir/anotherdir/myTemplate.md.tpl` will be written to `outputDir/somedir/anotherdir/myTemplate.md`
 
 ## Authors
 
