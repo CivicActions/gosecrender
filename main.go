@@ -15,6 +15,18 @@ import (
 )
 
 var wg sync.WaitGroup
+var cf Config
+var tv TemplateVars
+
+// Create a log file and set logging output.
+func setupLogging() {
+	l, err := os.Create("error.log")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer l.Close()
+	log.SetOutput(l)
+}
 
 // Config contains the values from the config.json file.
 type Config struct {
@@ -43,8 +55,8 @@ type TemplateVars struct {
 	Keys map[string]interface{}
 }
 
-func (t *TemplateVars) loadTemplateVars(td string) {
-	keyFiles := getFiles(td)
+func (t *TemplateVars) loadTemplateVars() {
+	keyFiles := getFiles(cf.KeyDir)
 	for _, v := range keyFiles {
 		t.parseJSON(v)
 	}
@@ -83,25 +95,15 @@ func (t *TemplateVars) parseJSON(j string) {
 	}
 }
 
-// Create a log file and set logging output.
-func setupLogging() {
-	l, err := os.Create("error.log")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer l.Close()
-	log.SetOutput(l)
-}
-
 // Do variable replacement on template files and create new files
 // in the defined OutputDir.
-func secrender(cf Config, t TemplateVars) {
+func secrender() {
 	switch filepath.Ext(cf.TemplateDir) {
 	case "":
-		crawlTemplates(cf.TemplateDir, cf.OutputDir, t)
+		crawlTemplates()
 	case ".tpl":
 		if filepath.Ext(cf.TemplateDir) == ".tpl" {
-			renderFile(cf.TemplateDir, cf.TemplateDir, cf.OutputDir, t)
+			renderFile(cf.TemplateDir)
 		}
 	}
 
@@ -109,15 +111,16 @@ func secrender(cf Config, t TemplateVars) {
 	fmt.Println("GoRoutines\t", runtime.NumGoroutine())
 }
 
-func crawlTemplates(tm string, o string, v TemplateVars) {
-	err := filepath.Walk(tm,
+// Walk into the template directory looking for tpl files.
+func crawlTemplates() {
+	err := filepath.Walk(cf.TemplateDir,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 			if filepath.Ext(path) == ".tpl" {
 				wg.Add(1)
-				go renderFile(tm, path, o, v)
+				go renderFile(path)
 			}
 			return nil
 		})
@@ -127,20 +130,20 @@ func crawlTemplates(tm string, o string, v TemplateVars) {
 }
 
 // Render the template and output the result to a file.
-func renderFile(tm string, t string, o string, v TemplateVars) {
-	r := strings.NewReplacer(tm, o, ".tpl", "")
-	opath := r.Replace(t)
+func renderFile(p string) {
+	r := strings.NewReplacer(cf.TemplateDir, cf.OutputDir, ".tpl", "")
+	opath := r.Replace(p)
 	fmt.Println("Creating file:", opath)
 
 	createFilepath(filepath.Dir(opath))
 
-	tpl := template.Must(template.ParseFiles(t))
+	tpl := template.Must(template.ParseFiles(p))
 	f, err := os.Create(opath)
 	if err != nil {
 		log.Println("Error creating file: ", err)
 	}
 
-	err = tpl.Execute(f, v)
+	err = tpl.Execute(f, tv)
 	if err != nil {
 		log.Print("Error writing file: ", err)
 	}
@@ -157,13 +160,14 @@ func createFilepath(o string) {
 	}
 }
 
-func main() {
+// Set up logging, load config and load the template variables.
+func init() {
 	setupLogging()
-	var cf Config
 	cf.loadConfig()
-	var t TemplateVars
-	t.loadTemplateVars(cf.KeyDir)
+	tv.loadTemplateVars()
+}
 
-	secrender(cf, t)
+func main() {
+	secrender()
 	wg.Wait()
 }
