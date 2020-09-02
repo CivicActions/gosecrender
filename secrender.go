@@ -1,4 +1,3 @@
-// Package secrender
 package main
 
 import (
