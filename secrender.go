@@ -2,66 +2,43 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"text/template"
 )
 
-var wg sync.WaitGroup
-var cf Config
-var tv TemplateVars
+var (
+	wg   sync.WaitGroup
+	fd   FileData
+	tv   TemplateVars
+	tpl  string
+	out  string
+	keys string
+	help bool
+)
 
-// Create a log file and set logging output.
-func setupLogging() {
-	l, err := os.Create("error.log")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer l.Close()
-	log.SetOutput(l)
+// FileData contains the values from the config.json file.
+type FileData struct {
+	KeyDir       string
+	TemplatePath string
+	OutputPath   string
 }
 
-// Config contains the values from the config.json file.
-type Config struct {
-	KeyDir      string `json:"keyDir"`
-	TemplateDir string `json:"templateDir"`
-	OutputDir   string `json:"outputDir"`
-}
+// Set all of the FileData parameters.
+func (fd *FileData) loadParams() {
+	flag.StringVar(&out, "o", "", "Output Directory")
+	flag.StringVar(&tpl, "t", "", "Template filepath")
+	flag.StringVar(&keys, "k", "", "Key directory path")
+	flag.Parse()
 
-// Unmarshal the config.json.
-func (cf *Config) loadConfig() {
-	_, err := os.Stat("config.json")
-	if os.IsNotExist(err) {
-		fmt.Println("No config.json file found.")
-		createConfig()
-	}
-	jsonFile, err := ioutil.ReadFile("config.json")
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	err = json.Unmarshal(jsonFile, &cf)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func createConfig() {
-	config := []byte(`{"keyDir": "keys", "templateDir": "templates", "outputDir": "out"}`)
-	c, err := os.Create("config.json")
-	if err != nil {
-		log.Println("Error writing file: ", err)
-	}
-	_, err = c.Write(config)
-	if err != nil {
-		log.Println(err)
-	}
+	fd.OutputPath = out
+	fd.TemplatePath = tpl
+	fd.KeyDir = keys
 }
 
 // TemplateVars maps all of the template variables from the keys/ directory
@@ -70,10 +47,13 @@ type TemplateVars struct {
 	Keys map[string]interface{}
 }
 
-func (t *TemplateVars) loadTemplateVars() {
-	keyFiles := getFiles(cf.KeyDir)
-	for _, v := range keyFiles {
-		t.parseJSON(v)
+func (tv *TemplateVars) loadTemplateVars() {
+	if fd.KeyDir != "" {
+		keyFiles := getFiles(fd.KeyDir)
+		fmt.Printf("Loading variables from JSON files in %s\n\r", fd.KeyDir)
+		for _, v := range keyFiles {
+			tv.parseJSON(v)
+		}
 	}
 }
 
@@ -98,59 +78,37 @@ func getFiles(p string) []string {
 }
 
 // Unmarshall JSON.
-func (t *TemplateVars) parseJSON(j string) {
+func (tv *TemplateVars) parseJSON(j string) {
 	jsonFile, err := ioutil.ReadFile(j)
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = json.Unmarshal(jsonFile, &t.Keys)
+	err = json.Unmarshal(jsonFile, &tv.Keys)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-// Do variable replacement on template files and create new files
-// in the defined OutputDir.
-func secrender() {
-	switch filepath.Ext(cf.TemplateDir) {
-	case "":
-		crawlTemplates()
-	case ".tpl":
-		if filepath.Ext(cf.TemplateDir) == ".tpl" {
-			renderFile(cf.TemplateDir)
-		}
-	}
-}
-
-// Walk into the template directory looking for tpl files.
-func crawlTemplates() {
-	err := filepath.Walk(cf.TemplateDir,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if filepath.Ext(path) == ".tpl" {
-				wg.Add(1)
-				go renderFile(path)
-			}
-			return nil
-		})
-	if err != nil {
-		log.Println(err)
+// Secrender does variable replacement on template file(s) and creates
+// new file(s) in the defined OutputDir.
+func Secrender() {
+	flag.Parse()
+	if isTemplate(fd.TemplatePath) {
+		wg.Add(1)
+		renderFile()
+	} else {
+		fmt.Println("Unable to render file:", fd.TemplatePath)
 	}
 }
 
 // Render the template and output the result to a file.
-func renderFile(p string) {
-	r := strings.NewReplacer(cf.TemplateDir, cf.OutputDir, ".tpl", "")
-	opath := r.Replace(p)
-	fmt.Println("Writing file:", opath)
+func renderFile() {
+	log.Printf("Writing file: %s\r\n", fd.OutputPath)
+	createOutput()
 
-	createFilepath(filepath.Dir(opath))
-
-	tpl := template.Must(template.ParseFiles(p))
-	f, err := os.Create(opath)
+	tpl := template.Must(template.ParseFiles(fd.TemplatePath))
+	f, err := os.Create(fd.OutputPath)
 	if err != nil {
 		log.Println("Error writing file: ", err)
 	}
@@ -163,23 +121,35 @@ func renderFile(p string) {
 	wg.Done()
 }
 
-// Create the directory structure for a given template output.
-func createFilepath(o string) {
-	_, err := os.Stat(o)
+func isTemplate(t string) bool {
+	if filepath.Ext(t) == ".tpl" {
+		return true
+	}
+	return false
+}
+
+func createOutput() {
+	_, err := os.Stat(fd.OutputPath)
 	if os.IsNotExist(err) {
-		fmt.Println("Creating directory...", o)
-		os.MkdirAll(o, 0777)
+		errDir := os.MkdirAll(filepath.Dir(fd.OutputPath), 0777)
+		if errDir != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-// Set up logging, load config and load the template variables.
+// Set config and load the template variables.
 func init() {
-	setupLogging()
-	cf.loadConfig()
+	flag.BoolVar(&help, "help", false, "Help text")
+	if help {
+		fmt.Println("Secrender Help")
+		flag.Usage()
+	}
+	fd.loadParams()
 	tv.loadTemplateVars()
 }
 
 func main() {
-	secrender()
+	Secrender()
 	wg.Wait()
 }
