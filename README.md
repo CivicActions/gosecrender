@@ -8,25 +8,11 @@ a Golang template to produce the markdown for SSP front matter.
 
 ## Usage
 
-### Configuration
-
-Configuration is stored in a file name `config.json` and should be kept in your project root. If the file doesn't exist _Secrender_ will create one with default values for the _keys_, _templates_ and _output_ directory.
-
-Example:
-
-```json
-{
-  "keyDir": "keys",
-  "templateDir": "templates",
-  "outputDir": "out"
-}
-```
+### Parameters
 
 #### Keys
 
-`Secrender` requires at least on JSON file in the keyDir directory defined
-in the `config.json` file. The keys file contains the keys and values to be
-used with the templates. For example:
+`Secrender` requires at least one JSON file in keys directory containing the key:value pairs to be used with the templates. For example:
 
 ```json
 {
@@ -38,9 +24,11 @@ used with the templates. For example:
 }
 ```
 
-The file should have a unique top-level name, `project` in the example above. The variables will be available to your template using `{{.Keys.[TOP-LEVEL].[KEY]}}`. Using the example above to render the project name you would use `{{.Keys.project.name}}`.
+The JSON should have a unique top-level name, `project` in the example above. The variables will be available to your template using `{{.Keys.[TOP-LEVEL].[KEY]}}`. Using the example above to render the project name you would use `{{.Keys.project.name}}`.
 
 You can have as many JSON key files as you like in the directory.
+
+Pass the directory containing your _key files_ using `-k`. For example `-k keys/`.
 
 #### Templates
 
@@ -54,9 +42,11 @@ Templates use the [Golang text/template](https://golang.org/pkg/text/template/) 
 
 The variables will be replaced with values from the keys JSON files.
 
+Pass the path to your _template file_ using `-t`. For example `-t templates/myTemplate.md.tpl`.
+
 #### Output
 
-Rendered template files will be output to the `outputDir` defined in the `config.json` file without the `.tpl` extension, but will retain their directory structure. In other words a file that lives in `templates/somedir/anotherdir/myTemplate.md.tpl` will be written to `outputDir/somedir/anotherdir/myTemplate.md`
+Use the `-o` flag to define where you would like the template to be rendered. For example: `-o output/myTemplate.md`.
 
 ## Authors
 
