@@ -1,4 +1,4 @@
-package main
+package secrender
 
 import (
 	"encoding/json"
@@ -93,7 +93,6 @@ func (tv *TemplateVars) parseJSON(j string) {
 // Secrender does variable replacement on template file(s) and creates
 // new file(s) in the defined OutputDir.
 func Secrender() {
-	flag.Parse()
 	if isTemplate(fd.TemplatePath) {
 		wg.Add(1)
 		renderFile()
@@ -147,9 +146,4 @@ func init() {
 	}
 	fd.loadParams()
 	tv.loadTemplateVars()
-}
-
-func main() {
-	Secrender()
-	wg.Wait()
 }
