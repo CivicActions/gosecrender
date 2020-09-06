@@ -2,7 +2,6 @@ package secrender
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -27,18 +26,6 @@ type FileData struct {
 	KeyDir       string
 	TemplatePath string
 	OutputPath   string
-}
-
-// Set all of the FileData parameters.
-func (fd *FileData) loadParams() {
-	flag.StringVar(&out, "o", "", "Output Directory")
-	flag.StringVar(&tpl, "t", "", "Template filepath")
-	flag.StringVar(&keys, "k", "", "Key directory path")
-	flag.Parse()
-
-	fd.OutputPath = out
-	fd.TemplatePath = tpl
-	fd.KeyDir = keys
 }
 
 // TemplateVars maps all of the template variables from the keys/ directory
@@ -92,8 +79,13 @@ func (tv *TemplateVars) parseJSON(j string) {
 
 // Secrender does variable replacement on template file(s) and creates
 // new file(s) in the defined OutputDir.
-func Secrender() {
-	if isTemplate(fd.TemplatePath) {
+func Secrender(t string, o string, k string) {
+	fd.TemplatePath = t
+	fd.OutputPath = o
+	fd.KeyDir = k
+	tv.loadTemplateVars()
+
+	if isTemplate(t) {
 		wg.Add(1)
 		renderFile()
 	} else {
@@ -135,15 +127,4 @@ func createOutput() {
 			log.Fatal(err)
 		}
 	}
-}
-
-// Set config and load the template variables.
-func init() {
-	flag.BoolVar(&help, "help", false, "Help text")
-	if help {
-		fmt.Println("Secrender Help")
-		flag.Usage()
-	}
-	fd.loadParams()
-	tv.loadTemplateVars()
 }

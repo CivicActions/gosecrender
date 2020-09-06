@@ -2,6 +2,7 @@ package secrender
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -74,12 +75,13 @@ func TestRenderFile(t *testing.T) {
 
 func TestSecrender(t *testing.T) {
 	fd.OutputPath = "template_test/output/test.md"
-	Secrender()
+	Secrender(fd.TemplatePath, fd.OutputPath, fd.KeyDir)
 	_, err := os.Stat(fd.OutputPath)
 	if err != nil {
 		t.Errorf("Failed to create file %s", fd.OutputPath)
 	}
 	t.Cleanup(func() {
+		fmt.Println("Removing test files")
 		os.RemoveAll("template_test")
 	})
 }
