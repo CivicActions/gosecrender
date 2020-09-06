@@ -12,7 +12,7 @@ a Golang template to produce the markdown for SSP front matter.
 
 #### Keys
 
-`Secrender` requires at least one JSON file in keys directory containing the key:value pairs to be used with the templates. For example:
+`Secrender` requires at least one JSON file in keys directory containing the ***key:value*** pairs to be used with the templates. For example:
 
 ```json
 {
