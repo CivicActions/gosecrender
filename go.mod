@@ -1,3 +1,3 @@
-module github.com/tom-camp/ssptoolkit
+module github.com/tom-camp/gossptk
 
 go 1.15
