@@ -39,6 +39,7 @@ func RenderAll() {
 		log.Println(err)
 	}
 	fmt.Printf("RenderAll created %d files.\r\n", ctr)
+	fmt.Println(tv.Keys)
 }
 
 func doSecrender(p string, wg *sync.WaitGroup) {

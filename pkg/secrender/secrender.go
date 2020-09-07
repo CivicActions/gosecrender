@@ -12,7 +12,7 @@ var (
 	fd FileData
 )
 
-// FileData contains the values from the config.json file.
+// FileData contains the values from the config.yaml file.
 type FileData struct {
 	TemplatePath string
 	OutputPath   string

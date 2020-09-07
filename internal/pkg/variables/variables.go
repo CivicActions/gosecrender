@@ -1,13 +1,13 @@
 package variables
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/tom-camp/gossptk/internal/pkg/config"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -24,11 +24,11 @@ type TemplateVars struct {
 func (tv *TemplateVars) LoadTemplateVars() {
 	keyFiles := getFiles(cf.KeyDir)
 	for _, v := range keyFiles {
-		tv.parseJSON(v)
+		tv.parseYAML(v)
 	}
 }
 
-// Load all of the JSON files into a slice of strings.
+// Load all of the YAML files into a slice of strings.
 func getFiles(p string) []string {
 	var files []string
 	err := filepath.Walk(p,
@@ -37,7 +37,7 @@ func getFiles(p string) []string {
 				return err
 			}
 			ftype := filepath.Ext(path)
-			if ftype == ".json" {
+			if ftype == ".yaml" {
 				files = append(files, path)
 			}
 			return nil
@@ -48,14 +48,14 @@ func getFiles(p string) []string {
 	return files
 }
 
-// Unmarshall JSON.
-func (tv *TemplateVars) parseJSON(j string) {
-	jsonFile, err := ioutil.ReadFile(j)
+// Unmarshall YAML.
+func (tv *TemplateVars) parseYAML(j string) {
+	yamlFile, err := ioutil.ReadFile(j)
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = json.Unmarshal(jsonFile, &tv.Keys)
+	err = yaml.Unmarshal(yamlFile, &tv.Keys)
 	if err != nil {
 		log.Println(err)
 	}
