@@ -1,32 +1,33 @@
 package config
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 var cf Config
 
 // Config contains configuration variables.
 type Config struct {
-	TemplateDir string `json:"templateDir"`
-	OutputDir   string `json:"outputDir"`
-	KeyDir      string `json:"keyDir"`
+	TemplateDir string `yaml:"templateDir"`
+	OutputDir   string `yaml:"outputDir"`
+	KeyDir      string `yaml:"keyDir"`
 }
 
 // LoadConfig loads variables from the config.json file.
 func (cf *Config) LoadConfig() {
-	_, err := os.Stat("config.json")
+	_, err := os.Stat("config.yaml")
 	if os.IsNotExist(err) {
-		log.Panic("No config.json file found.")
+		log.Panic("No config.yaml file found.")
 	}
-	jsonFile, err := ioutil.ReadFile("config.json")
+	yamlFile, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
 		log.Println(err)
 	}
-	err = json.Unmarshal(jsonFile, &cf)
+	err = yaml.Unmarshal(yamlFile, &cf)
 	if err != nil {
 		log.Println(err)
 	}

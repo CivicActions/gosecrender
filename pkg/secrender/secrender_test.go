@@ -17,7 +17,7 @@ func TestIsTemplate(t *testing.T) {
 	if !isTpl {
 		t.Errorf("isTemplate: Expected true, got %t", isTpl)
 	}
-	isntTpl := isTemplate("template_test/keys/test.json")
+	isntTpl := isTemplate("template_test/keys/test.yaml")
 	if isntTpl {
 		t.Errorf("isTemplate: Expected false, got %t", isTpl)
 	}
