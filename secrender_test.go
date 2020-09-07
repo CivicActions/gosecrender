@@ -65,8 +65,8 @@ func TestLoadParams(t *testing.T) {
 func TestRenderFile(t *testing.T) {
 	fd.TemplatePath = "template_test/templates/test.md.tpl"
 	fd.OutputPath = "template_test/render_test/test.md"
-	wg.Add(1)
 	renderFile()
+
 	_, err := os.Stat("template_test/render_test/test.md")
 	if err != nil {
 		t.Errorf("Expected file, got %v", err)
