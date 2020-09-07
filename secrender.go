@@ -7,12 +7,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sync"
 	"text/template"
 )
 
 var (
-	wg   sync.WaitGroup
 	fd   FileData
 	tv   TemplateVars
 	tpl  string
@@ -86,7 +84,6 @@ func Secrender(t string, o string, k string) {
 	tv.loadTemplateVars()
 
 	if isTemplate(t) {
-		wg.Add(1)
 		renderFile()
 	} else {
 		fmt.Println("Unable to render file:", fd.TemplatePath)
@@ -109,7 +106,6 @@ func renderFile() {
 		log.Println("Error writing file: ", err)
 	}
 	f.Close()
-	wg.Done()
 }
 
 func isTemplate(t string) bool {
