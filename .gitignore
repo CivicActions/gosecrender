@@ -1,3 +1,5 @@
 templates
 keys
 config.json
+.vscode
+rendered

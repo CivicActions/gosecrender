@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tom-camp/ssptoolkit/internal/pkg/config"
+	"github.com/tom-camp/gossptk/internal/pkg/config"
 )
 
 var (

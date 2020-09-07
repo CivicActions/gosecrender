@@ -8,9 +8,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tom-camp/ssptoolkit/internal/pkg/config"
-	"github.com/tom-camp/ssptoolkit/internal/pkg/secrender"
-	"github.com/tom-camp/ssptoolkit/internal/pkg/variables"
+	"github.com/tom-camp/gossptk/internal/pkg/config"
+	"github.com/tom-camp/gossptk/internal/pkg/variables"
+	"github.com/tom-camp/gossptk/pkg/secrender"
 )
 
 var (
@@ -38,7 +38,7 @@ func RenderAll() {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Printf("%d files rendered", ctr)
+	fmt.Printf("RenderAll created %d files.\r\n", ctr)
 }
 
 func doSecrender(p string, wg *sync.WaitGroup) {

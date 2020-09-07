@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/tom-camp/ssptoolkit/internal/app/renderall"
+	"github.com/tom-camp/gossptk/internal/app/renderall"
 )
 
 func main() {
