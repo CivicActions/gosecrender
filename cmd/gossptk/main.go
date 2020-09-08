@@ -1,9 +1,14 @@
 package main
 
 import (
-	"github.com/tom-camp/gossptk/internal/app/renderall"
+	"fmt"
+
+	"github.com/tom-camp/gossptk/internal/pkg/opencontrol"
 )
 
+var oc opencontrol.OpenControl
+
 func main() {
-	renderall.RenderAll()
+	oc.LoadOpenControl()
+	fmt.Println(oc.Metadata)
 }
