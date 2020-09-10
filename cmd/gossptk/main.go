@@ -1,14 +1,9 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/tom-camp/gossptk/internal/pkg/opencontrol"
+	"github.com/tom-camp/gossptk/internal/app/mkfam"
 )
 
-var oc opencontrol.OpenControl
-
 func main() {
-	oc.LoadOpenControl()
-	fmt.Println(oc.Metadata)
+	mkfam.MakeFamilies()
 }

@@ -1,7 +1,6 @@
 package secrender
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -28,8 +27,6 @@ func Secrender(t string, o string, tv map[string]interface{}) {
 
 	if isTemplate(t) {
 		renderFile()
-	} else {
-		fmt.Println("Unable to render file:", fd.TemplatePath)
 	}
 }
 
