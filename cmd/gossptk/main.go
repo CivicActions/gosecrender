@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
+	// renderall.RenderAll()
 	mkfam.MakeFamilies()
 }

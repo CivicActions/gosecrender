@@ -2,42 +2,88 @@ package mkfam
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"path"
 
+	"github.com/tom-camp/gossptk/internal/pkg/config"
 	"github.com/tom-camp/gossptk/internal/pkg/opencontrol"
+	"github.com/tom-camp/gossptk/pkg/secrender"
+	"gopkg.in/yaml.v2"
 )
 
-var oc opencontrol.Config
-var cp opencontrol.Component
-var ct opencontrol.Certs
-var st opencontrol.Standards
+var (
+	oc opencontrol.Config
+	ct opencontrol.Certs
+	st opencontrol.Standards
+	cl componentList
+	cf config.Config
+)
 
-// Family defines a struct containing all of the information to create the
-// [FAMILY].md file.
-type Family struct {
-	Name          string
-	Certification []string
-	ComponentName string
-	Controls      []struct {
-		description string
-		Control     []map[string]interface{}
+// componentList is a list of filenames for files containing components.
+type componentList struct {
+	Satisfies []string `yaml:"satisfies,flow"`
+	Families  map[string][]string
+}
+
+// getComponentList unmarshals the component YAML file.
+func (cl *componentList) getComponentList(p string) {
+	var tmp componentList
+	cp := path.Join(p, "component.yaml")
+	_, err := os.Stat(cp)
+	if os.IsNotExist(err) {
+		log.Panicf("File %s not found", p)
+	}
+	yamlFile, err := ioutil.ReadFile(cp)
+	if err != nil {
+		log.Println(err)
+	}
+	err = yaml.Unmarshal(yamlFile, &tmp)
+	if err != nil {
+		log.Println(err)
+	}
+	for i, v := range tmp.Satisfies {
+		tmp.Satisfies[i] = path.Join(p, v)
+	}
+	cl.Satisfies = append(cl.Satisfies, tmp.Satisfies...)
+}
+
+func (cl *componentList) groupComponentFamilies() {
+	for _, v := range cl.Satisfies {
+		_, f := path.Split(v)
+		fam := f[0:2]
+		cl.Families[fam] = append(cl.Families[fam], v)
 	}
 }
 
 // MakeFamilies aggregates the Control components by control family.
 func MakeFamilies() {
-	fmt.Println(st.Standard["AC-1"].Description)
-	// for _, p := range oc.Components {
-	// 	_, n := filepath.Split(p)
-	// 	f := Family{}
-	// 	f.Name = n
-	// }
+	cl.Families = make(map[string][]string)
+	for _, p := range oc.Components {
+		cl.getComponentList(p)
+	}
+	cl.groupComponentFamilies()
+	fmt.Printf("%#s", cl.Families["SI"])
 }
 
-func getNarratives() {
+// getOutPath creates the file to create for the family.
+func getOutPath(f string) string {
+	return path.Join(cf.OutputDir, "families", f+".md")
+}
 
+// Render the template and output the result to a file.
+func renderFile(o string, f Family, i string) {
+	var vars map[string]interface{}
+	tpl := "assets/templates/family.md.go.tpl"
+	inrec, _ := yaml.Marshal(f)
+	yaml.Unmarshal(inrec, &vars)
+	secrender.Secrender(tpl, o, vars)
 }
 
 func init() {
-	ct.LoadCerts()
-	st.LoadStandards()
+	oc.Load()
+	cf.LoadConfig()
+	ct.Load()
+	st.Load()
 }

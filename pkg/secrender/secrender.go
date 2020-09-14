@@ -1,6 +1,7 @@
 package secrender
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,6 +33,7 @@ func Secrender(t string, o string, tv map[string]interface{}) {
 
 // Render the template and output the result to a file.
 func renderFile() {
+	fmt.Println("Creating Out path", fd.OutputPath)
 	createOutputPath()
 	tpl := template.Must(template.ParseFiles(fd.TemplatePath))
 	f, err := os.Create(fd.OutputPath)

@@ -20,8 +20,8 @@ type Config struct {
 	Certifications []string               `yaml:"certifications"`
 }
 
-// LoadConfig loads the values of the opencontrol.yaml file.
-func (oc *Config) LoadConfig() {
+// Load loads the values of the opencontrol.yaml file.
+func (oc *Config) Load() {
 	_, err := os.Stat("opencontrol.yaml")
 	if os.IsNotExist(err) {
 		log.Panic("No config.yaml file found.")
@@ -70,13 +70,29 @@ type Component struct {
 	} `yaml:"satisfies"`
 }
 
-// Certs creates a struct representing the project Certificates.
-type Certs struct {
-	Standards map[string]interface{} `yaml:"standards"`
+// Load loads a struct with data representing a Component.
+func (cp *Component) Load(p string) {
+	_, err := os.Stat(p)
+	if os.IsNotExist(err) {
+		log.Panicf("File %s not found", p)
+	}
+	yamlFile, err := ioutil.ReadFile(p)
+	if err != nil {
+		log.Println(err)
+	}
+	err = yaml.Unmarshal(yamlFile, &cp)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-// LoadCerts loads a struct with data representing the Certificates.
-func (c *Certs) LoadCerts() {
+// Certs creates a struct representing the project Certificates.
+type Certs struct {
+	Standards map[string]interface{}
+}
+
+// Load loads a struct with data representing the Certificates.
+func (c *Certs) Load() {
 	for _, p := range oc.Certifications {
 		_, err := os.Stat(p)
 		if os.IsNotExist(err) {
@@ -105,8 +121,8 @@ type Standards struct {
 	}
 }
 
-// LoadStandards loads a struct with data representing the Standards.
-func (s *Standards) LoadStandards() {
+// Load loads a struct with data representing the Standards.
+func (s *Standards) Load() {
 	for _, p := range oc.Standards {
 		_, err := os.Stat(p)
 		if os.IsNotExist(err) {
@@ -124,5 +140,5 @@ func (s *Standards) LoadStandards() {
 }
 
 func init() {
-	oc.LoadConfig()
+	oc.Load()
 }
