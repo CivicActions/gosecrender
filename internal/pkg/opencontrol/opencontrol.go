@@ -115,7 +115,7 @@ type Standards struct {
 		Family               string `yaml:"family"`
 		Name                 string `yaml:"name"`
 		Description          string `yaml:"description"`
-		supplementalGuidance string `yaml:"supplemental guidance"`
+		SupplementalGuidance string `yaml:"supplemental guidance"`
 		relatedControls      string `yaml:"related controls"`
 		references           string `yaml:"references"`
 	}

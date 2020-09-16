@@ -1,7 +1,6 @@
 package mkfam
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -59,12 +58,23 @@ func (cl *componentList) groupComponentFamilies() {
 
 // MakeFamilies aggregates the Control components by control family.
 func MakeFamilies() {
-	cl.Families = make(map[string][]string)
 	for _, p := range oc.Components {
 		cl.getComponentList(p)
 	}
+	cl.Families = make(map[string][]string)
 	cl.groupComponentFamilies()
-	fmt.Printf("%#s", cl.Families["SI"])
+	createFamily()
+}
+
+func createFamily() {
+	for i, fl := range cl.Families {
+		f := Family{}
+		f.parseFamily(fl, i)
+		// jsonString, _ := json.Marshal(f)
+		// fmt.Printf("%-v\n\r", string(jsonString))
+		o := getOutPath(i)
+		renderFile(o, f)
+	}
 }
 
 // getOutPath creates the file to create for the family.
@@ -73,7 +83,7 @@ func getOutPath(f string) string {
 }
 
 // Render the template and output the result to a file.
-func renderFile(o string, f Family, i string) {
+func renderFile(o string, f Family) {
 	var vars map[string]interface{}
 	tpl := "assets/templates/family.md.go.tpl"
 	inrec, _ := yaml.Marshal(f)
