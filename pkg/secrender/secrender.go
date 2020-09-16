@@ -12,7 +12,11 @@ var (
 	fd FileData
 )
 
-// FileData contains the values from the config.yaml file.
+// FileData creates a struct to hold the data for the file to be render.
+// TemplatePath is a string to the template to be rendered.
+// OutputPath is the path where Secrender should create the rendered file.
+// Variables is a map of the variables to use when doing the variable replacement
+// in the template.
 type FileData struct {
 	TemplatePath string
 	OutputPath   string
@@ -21,6 +25,11 @@ type FileData struct {
 
 // Secrender does variable replacement on template file(s) and creates
 // new file(s) in the defined OutputDir.
+// Parameter t is a string representing a path to a template.
+// Parameter o is a string representing a path where Secrender should output the
+// rendered template.
+// Parameter tv is a map of variables to use for the variable replacement in the
+// template.
 func Secrender(t string, o string, tv map[string]interface{}) {
 	fd.TemplatePath = t
 	fd.OutputPath = o
@@ -28,13 +37,13 @@ func Secrender(t string, o string, tv map[string]interface{}) {
 
 	if isTemplate(t) {
 		renderFile()
-	} else {
-		fmt.Println("Unable to render file:", fd.TemplatePath)
 	}
 }
 
-// Render the template and output the result to a file.
+// renderFile does the heavy lifting, rendering the template and writing it to
+// the OutputPath.
 func renderFile() {
+	fmt.Println("Creating Out path", fd.OutputPath)
 	createOutputPath()
 	tpl := template.Must(template.ParseFiles(fd.TemplatePath))
 	f, err := os.Create(fd.OutputPath)
@@ -48,6 +57,7 @@ func renderFile() {
 	f.Close()
 }
 
+// Check that the template path that is given is indeed a template.
 func isTemplate(t string) bool {
 	if filepath.Ext(t) == ".tpl" {
 		return true
@@ -55,6 +65,7 @@ func isTemplate(t string) bool {
 	return false
 }
 
+// Creates the path to the output file, creating any directories that are needed.
 func createOutputPath() {
 	_, err := os.Stat(fd.OutputPath)
 	if os.IsNotExist(err) {

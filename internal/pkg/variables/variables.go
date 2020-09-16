@@ -15,7 +15,8 @@ var (
 	tv TemplateVars
 )
 
-// TemplateVars contains all of the file define in the keys directory.
+// TemplateVars creates a struct to hold all of the variables needed for the
+// template variable replacement used by the Secrender package.
 type TemplateVars struct {
 	Keys map[string]interface{}
 }
@@ -61,6 +62,7 @@ func (tv *TemplateVars) parseYAML(j string) {
 	}
 }
 
+// Load the configuration files.
 func init() {
 	cf.LoadConfig()
 }

@@ -1,5 +1,6 @@
-templates
+/templates
 keys
 config.json
 .vscode
 rendered
+opencontrol.yaml
