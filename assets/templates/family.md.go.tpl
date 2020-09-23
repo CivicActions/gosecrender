@@ -9,19 +9,15 @@
 ```
 
 {{- range $a, $b := $v.narratives }}
-{{- range $j, $k := $b.key }}
 
-{{ if $j -}}#### {{ $j }}{{ end }}
+{{ if ne ( index $a )  ( "no key" ) -}}#### {{ $v.ctrlkey }} ({{ $a | ToUpper }}){{ end }}
 
-{{- range $c, $d := $k }}
-{{- range $e, $f := $d.text }}
+{{- range $d := $b }}
 
-{{ $e }}
+##### {{ $d.component }}
 
-{{ $f }}
+{{ $d.text }}
 
-{{- end }}
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

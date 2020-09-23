@@ -23,7 +23,6 @@ type Ctrl struct {
 	SecurityControlType string       `yaml:"security_control_type"`
 	Narratives          []Narratives `yaml:"narrative"`
 	Status              string       `yaml:"implementation_status"`
-	Component           string
 }
 
 // Controls creates a struct matching OpenControl component.

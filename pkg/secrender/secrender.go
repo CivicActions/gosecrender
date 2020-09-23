@@ -5,11 +5,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
 var (
-	fd FileData
+	fd          FileData
+	secTemplate template.Template
 )
 
 // FileData creates a struct to hold the data for the file to be render.
@@ -44,8 +46,12 @@ func Secrender(t string, o string, tv map[string]interface{}) {
 // the OutputPath.
 func renderFile() {
 	fmt.Println("Creating Out path", fd.OutputPath)
+	_, name := filepath.Split(fd.TemplatePath)
 	createOutputPath()
-	tpl := template.Must(template.ParseFiles(fd.TemplatePath))
+	funcMap := template.FuncMap{
+		"ToUpper": strings.ToUpper,
+	}
+	tpl := template.Must(template.New(name).Funcs(funcMap).ParseFiles(fd.TemplatePath))
 	f, err := os.Create(fd.OutputPath)
 	if err != nil {
 		log.Println("Error writing file: ", err)

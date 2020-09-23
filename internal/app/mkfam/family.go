@@ -6,7 +6,10 @@ import (
 	"github.com/tom-camp/gossptk/internal/pkg/opencontrol"
 )
 
-var component string
+var (
+	f         Family
+	component string
+)
 
 // Family creates a struct that will contain all of the information to create the
 // [FAMILY].md file. Control Families are a grouping of similar controls. The
@@ -17,32 +20,21 @@ var component string
 type Family struct {
 	Name          string
 	Certification []string
-	Controls      map[string]interface{}
+	Controls      map[string]Control
 }
 
-// Satisfies creates a struct that will contain all of the  components that
-// pertain to a given control. For instance, we for AC-2 components for the
-// web host, the contractor and the application might pertain to the control.
-// All of component narratives would be Narratives field slice of Narrative.
-type Satisfies struct {
+// Control creates a struct...
+type Control struct {
 	CtrlKey     string
 	CtrlName    string
 	Description string
 	Status      string
-	Narratives  []Narrative
+	Narratives  map[string][]NarrativeText
 }
 
-// Narrative creates a struct that contains a slice of Narrative text. The Key
-// field is a map keyed by the Open Control Narrative Key so that we can group
-// all of the component narratives.
-type Narrative struct {
-	Key map[string][]NarrativeText
-}
-
-// NarrativeText creates a struct that contains a singal key:value pair with the
-// key being the component and the value being the narrative.
 type NarrativeText struct {
-	Text map[string]string
+	Component string
+	Text      string
 }
 
 // parseFamily maps the fields in an OpenControl component file to a Family
@@ -51,7 +43,7 @@ type NarrativeText struct {
 // pertain to the Family. The argument a is a string of the abbreviation for
 // the family. In the case of Access Control, a would be "AC".
 func (f *Family) parseFamily(p []string, a string) {
-	var nr []opencontrol.Ctrl
+	f.Controls = make(map[string]Control)
 	for _, fp := range p {
 		component = filepath.Base(filepath.Dir(fp))
 		c := opencontrol.Controls{}
@@ -59,10 +51,8 @@ func (f *Family) parseFamily(p []string, a string) {
 		if len(f.Name) <= 0 {
 			f.Name = a + ": " + c.Family
 		}
-		nr = append(nr, c.Satisfies...)
+		f.parseControl(c.Satisfies)
 	}
-	f.Controls = make(map[string]interface{})
-	f.parseControl(nr)
 }
 
 // parseControl creates a Satisfies struct for every Control passed in the
@@ -71,40 +61,50 @@ func (f *Family) parseFamily(p []string, a string) {
 // Controls.
 func (f *Family) parseControl(o []opencontrol.Ctrl) {
 	for _, v := range o {
-		s := new(Satisfies)
-		s.CtrlKey = v.ControlKey
-		s.CtrlName = v.ControlName
-		s.setDescription()
-		s.parseNarratives(v.Narratives)
-		f.Controls[s.CtrlKey] = s
+		c, ok := f.Controls[v.ControlKey]
+		if !ok {
+			c = newControl(v)
+		} else {
+		}
+		c.parseNarratives(v.Narratives)
+		f.Controls[c.CtrlKey] = c
 	}
 }
 
+func newControl(v opencontrol.Ctrl) Control {
+	c := new(Control)
+	c.CtrlKey = v.ControlKey
+	c.CtrlName = v.ControlName
+	c.setDescription()
+	return *c
+}
+
 // parseNarratives creates a struct of NarrativeText and appends it to the
-// Narrative slice of NarrativeText.
-func (s *Satisfies) parseNarratives(o []opencontrol.Narratives) {
-	var n Narrative
-	n.Key = make(map[string][]NarrativeText)
-	k := "no key"
+// Narrative slice of map[string]string.
+func (c *Control) parseNarratives(o []opencontrol.Narratives) {
+	if c.Narratives == nil {
+		c.Narratives = make(map[string][]NarrativeText)
+	}
 	for _, on := range o {
-		if len(on.Key) >= 0 {
+		k := "no key"
+		if len(on.Key) > 0 {
 			k = on.Key
 		}
 		nt := NarrativeText{
-			Text: map[string]string{component: on.Text},
+			Component: component,
+			Text:      on.Text,
 		}
-		n.Key[k] = append(n.Key[k], nt)
+		c.Narratives[k] = append(c.Narratives[k], nt)
 	}
-	s.Narratives = append(s.Narratives, n)
 }
 
 // setDescription gets the Control Description, and, if applicable, Supplemental
 // Guidance for a give Control.
-func (s *Satisfies) setDescription() {
-	standard := st.Standard[s.CtrlKey]
+func (c *Control) setDescription() {
+	standard := st.Standard[c.CtrlKey]
 	text := standard.Description
 	if len(standard.SupplementalGuidance) > 0 {
 		text = text + "\r\n\r\n**Supplemental Guidance**\r\n\r\n" + standard.SupplementalGuidance
 	}
-	s.Description = text
+	c.Description = text
 }

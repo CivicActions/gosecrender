@@ -70,8 +70,6 @@ func createFamily() {
 	for i, fl := range cl.Families {
 		f := Family{}
 		f.parseFamily(fl, i)
-		// jsonString, _ := json.Marshal(f)
-		// fmt.Printf("%-v\n\r", string(jsonString))
 		o := getOutPath(i)
 		renderFile(o, f)
 	}
