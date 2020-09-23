@@ -10,7 +10,7 @@
 
 {{- range $a, $b := $v.narratives }}
 
-{{ if ne ( index $a )  ( "no key" ) -}}#### {{ $v.ctrlkey }} ({{ $a | ToUpper }}){{ end }}
+{{ if ne ( index $a )  ( "no key" ) -}}#### {{ $a | ToUpper }}{{ end }}
 
 {{- range $d := $b }}
 
