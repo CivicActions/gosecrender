@@ -12,6 +12,8 @@ var _ = func() bool {
 	return true
 }()
 
+// Test that the isTempate() function returns true if a file has the .tpl suffix
+// false if not.
 func TestIsTemplate(t *testing.T) {
 	isTpl := isTemplate("template_test/templates/test.md.tpl")
 	if !isTpl {

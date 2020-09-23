@@ -14,9 +14,9 @@
 
 {{- range $d := $b }}
 
-##### {{ $d.component }}
+##### {{ $d.Component }}
 
-{{ $d.text }}
+{{ $d.Text }}
 
 {{- end }}
 {{- end }}

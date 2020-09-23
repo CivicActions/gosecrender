@@ -23,18 +23,13 @@ type Family struct {
 	Controls      map[string]Control
 }
 
-// Control creates a struct...
+// Control creates a struct representing an OpenControl control.
 type Control struct {
 	CtrlKey     string
 	CtrlName    string
 	Description string
 	Status      string
-	Narratives  map[string][]NarrativeText
-}
-
-type NarrativeText struct {
-	Component string
-	Text      string
+	Narratives  map[string][]interface{}
 }
 
 // parseFamily maps the fields in an OpenControl component file to a Family
@@ -79,20 +74,20 @@ func newControl(v opencontrol.Ctrl) Control {
 	return *c
 }
 
-// parseNarratives creates a struct of NarrativeText and appends it to the
+// parseNarratives creates a map[string]interface{} and appends it to the
 // Narrative slice of map[string]string.
 func (c *Control) parseNarratives(o []opencontrol.Narratives) {
 	if c.Narratives == nil {
-		c.Narratives = make(map[string][]NarrativeText)
+		c.Narratives = make(map[string][]interface{})
 	}
 	for _, on := range o {
 		k := "no key"
 		if len(on.Key) > 0 {
 			k = on.Key
 		}
-		nt := NarrativeText{
-			Component: component,
-			Text:      on.Text,
+		nt := map[string]interface{}{
+			"Component": component,
+			"Text":      on.Text,
 		}
 		c.Narratives[k] = append(c.Narratives[k], nt)
 	}
