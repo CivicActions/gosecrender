@@ -1,7 +1,11 @@
 package mkfam
 
 import (
+	"log"
 	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/civicactions/gossptk/internal/pkg/opencontrol"
 )
@@ -20,7 +24,7 @@ var (
 type Family struct {
 	Name          string
 	Certification []string
-	Controls      map[string]Control
+	Controls      map[float64]Control
 }
 
 // Control creates a struct representing an OpenControl control.
@@ -38,7 +42,7 @@ type Control struct {
 // pertain to the Family. The argument a is a string of the abbreviation for
 // the family. In the case of Access Control, a would be "AC".
 func (f *Family) parseFamily(p []string, a string) {
-	f.Controls = make(map[string]Control)
+	f.Controls = make(map[float64]Control)
 	for _, fp := range p {
 		component = filepath.Base(filepath.Dir(fp))
 		c := opencontrol.Controls{}
@@ -56,13 +60,13 @@ func (f *Family) parseFamily(p []string, a string) {
 // Controls.
 func (f *Family) parseControl(o []opencontrol.Ctrl) {
 	for _, v := range o {
-		c, ok := f.Controls[v.ControlKey]
+		sk := getSortKey(v.ControlKey)
+		c, ok := f.Controls[sk]
 		if !ok {
 			c = newControl(v)
-		} else {
 		}
 		c.parseNarratives(v.Narratives)
-		f.Controls[c.CtrlKey] = c
+		f.Controls[sk] = c
 	}
 }
 
@@ -102,4 +106,20 @@ func (c *Control) setDescription() {
 		text = text + "\r\n\r\n**Supplemental Guidance**\r\n\r\n" + standard.SupplementalGuidance
 	}
 	c.Description = text
+}
+
+func getSortKey(k string) float64 {
+	re := regexp.MustCompile(`(\d+)`)
+	result := re.FindAllString(k, -1)
+	var nk string
+	if len(result) > 1 {
+		nk = strings.Join(result, ".")
+	} else {
+		nk = result[0]
+	}
+	f, err := strconv.ParseFloat(nk, 32)
+	if err != nil {
+		log.Println("Key error")
+	}
+	return f
 }
