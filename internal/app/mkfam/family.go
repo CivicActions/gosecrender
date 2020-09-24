@@ -97,8 +97,8 @@ func (c *Control) parseNarratives(o []opencontrol.Narratives) {
 	}
 }
 
-// setDescription gets the Control Description, and, if applicable, Supplemental
-// Guidance for a give Control.
+// setDescription gets the Control Description, and, if applicable,
+// Supplemental Guidance for a give Control.
 func (c *Control) setDescription() {
 	standard := st.Standard[c.CtrlKey]
 	text := standard.Description
@@ -108,6 +108,11 @@ func (c *Control) setDescription() {
 	c.Description = text
 }
 
+// getSortKey creates a key so that Controls are sorted properly. If we use
+// the Control ID controls will be sorted as strings, so AC-1 will be followed
+// by AC-10 rather than AC-2. We are using the ID value as a float rather than
+// an int to accomodate control enhancements, for example AC-17 (1) will use
+// the key 17.1.
 func getSortKey(k string) float64 {
 	re := regexp.MustCompile(`(\d+)`)
 	result := re.FindAllString(k, -1)
