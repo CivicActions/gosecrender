@@ -1,4 +1,4 @@
-module github.com/tom-camp/gossptk
+module github.com/civicactions/gossptk
 
 go 1.15
 

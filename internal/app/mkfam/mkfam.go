@@ -6,9 +6,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/tom-camp/gossptk/internal/pkg/config"
-	"github.com/tom-camp/gossptk/internal/pkg/opencontrol"
-	"github.com/tom-camp/gossptk/pkg/secrender"
+	"github.com/civicactions/gossptk/internal/pkg/config"
+	"github.com/civicactions/gossptk/internal/pkg/opencontrol"
+	"github.com/civicactions/gossptk/pkg/secrender"
 	"gopkg.in/yaml.v2"
 )
 

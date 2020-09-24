@@ -3,7 +3,7 @@ package mkfam
 import (
 	"path/filepath"
 
-	"github.com/tom-camp/gossptk/internal/pkg/opencontrol"
+	"github.com/civicactions/gossptk/internal/pkg/opencontrol"
 )
 
 var (

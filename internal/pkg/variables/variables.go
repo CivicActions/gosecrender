@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tom-camp/gossptk/internal/pkg/config"
+	"github.com/civicactions/gossptk/internal/pkg/config"
 	"gopkg.in/yaml.v2"
 )
 
