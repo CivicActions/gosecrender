@@ -15,15 +15,16 @@ type Config struct {
 	TemplateDir string `yaml:"templateDir"`
 	OutputDir   string `yaml:"outputDir"`
 	KeyDir      string `yaml:"keyDir"`
+	Format      string `yaml:"format"`
 }
 
-// LoadConfig loads variables from the config.json file.
+// LoadConfig loads variables from the config.yaml file.
 func (cf *Config) LoadConfig() {
-	_, err := os.Stat("config.yaml")
+	_, err := os.Stat("configs/config.yaml")
 	if os.IsNotExist(err) {
 		log.Panic("No config.yaml file found.")
 	}
-	yamlFile, err := ioutil.ReadFile("config.yaml")
+	yamlFile, err := ioutil.ReadFile("configs/config.yaml")
 	if err != nil {
 		log.Println(err)
 	}

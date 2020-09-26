@@ -40,7 +40,7 @@ type dependencies struct {
 func (oc *OpenControl) Load() {
 	_, err := os.Stat("opencontrol.yaml")
 	if os.IsNotExist(err) {
-		log.Panic("No config.yaml file found.")
+		log.Panic("No opencontrol.yaml file found.")
 	}
 	yamlFile, err := ioutil.ReadFile("opencontrol.yaml")
 	if err != nil {
