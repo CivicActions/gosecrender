@@ -1,3 +1,12 @@
+// Package secrender implements variable replacement for templates.
+//
+// The templates use Golangs text/template package and dot syntax. For
+// example {{.title}}.
+//
+// Given a template, a path to output the rendered template and a map
+// of variables to use to replace the template "Actions", Secrender will
+// will create a new file with the template actions substituted with the
+// variables.
 package secrender
 
 import (
@@ -44,6 +53,9 @@ func Secrender(t string, o string, tv map[string]interface{}) {
 
 // renderFile does the heavy lifting, rendering the template and writing it to
 // the OutputPath.
+// funcMap allows us to add functions to use within the templates. Currently,
+// the only function available is strings.ToUpper(). To use it the function, use
+// pipe notation. For example, {{.Title | ToUpper}}.
 func renderFile() {
 	fmt.Println("Creating Out path", fd.OutputPath)
 	_, name := filepath.Split(fd.TemplatePath)
