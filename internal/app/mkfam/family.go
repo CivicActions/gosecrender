@@ -45,7 +45,7 @@ func (f *Family) parseFamily(p []string, a string) {
 	f.Controls = make(map[float64]Control)
 	for _, fp := range p {
 		component = filepath.Base(filepath.Dir(fp))
-		c := opencontrol.Controls{}
+		c := opencontrol.Control{}
 		c.Load(fp)
 		if len(f.Name) <= 0 {
 			f.Name = a + ": " + c.Family

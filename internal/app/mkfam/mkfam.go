@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	oc opencontrol.Config
-	ct opencontrol.Certs
+	oc opencontrol.OpenControl
+	ct opencontrol.Certifications
 	st opencontrol.Standards
 	cl componentList
 	cf config.Config

@@ -25,15 +25,15 @@ type Ctrl struct {
 	Status              string       `yaml:"implementation_status"`
 }
 
-// Controls creates a struct matching OpenControl component.
-type Controls struct {
+// Control creates a struct matching OpenControl component.
+type Control struct {
 	Family      string `yaml:"family"`
 	DocComplete string `yaml:"documentation_complete"`
 	Satisfies   []Ctrl `yaml:"satisfies"`
 }
 
 // Load a Control given a path to the control YAML file.
-func (c *Controls) Load(p string) {
+func (c *Control) Load(p string) {
 	_, err := os.Stat(p)
 	if os.IsNotExist(err) {
 		log.Panicf("File %s not found", p)
