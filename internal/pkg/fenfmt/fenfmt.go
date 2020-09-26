@@ -41,7 +41,8 @@ type FenComponent struct {
 	Satisfies     []string `yaml:"satisfies"`
 }
 
-// DeFen converts FenFmt components to OpenControl components.
+// DeFen aggregates the Controls from within the individual FenFmt Control
+// Family files into a component.yaml file for each component.
 func DeFen() {
 	if isFenFmt() {
 		for _, p := range oc.Components {
