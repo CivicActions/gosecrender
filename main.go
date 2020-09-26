@@ -1,11 +1,10 @@
 package main
 
-import (
-	"github.com/civicactions/gossptk/internal/pkg/fenfmt"
-)
+import "fmt"
 
 func main() {
 	// renderall.RenderAll()
 	// mkfam.MakeFamilies()
-	fenfmt.DeFen()
+	// fenfmt.DeFen()
+	fmt.Println("SSP Toolkit")
 }
